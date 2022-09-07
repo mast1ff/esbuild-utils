@@ -1,6 +1,6 @@
 {
   "name": "@esbuild-utils/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI extension to esbuild that supports loading of configuration files like webpack-cli",
   "author": "mast1ff <https://github.com/mast1ff>",
   "repository": {
