@@ -1,0 +1,54 @@
+{
+  "name": "esbuild-utils-monorepo",
+  "version": "0.0.0",
+  "description": "Utilities for esbuild",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "turbo run clean",
+    "watch": "turbo run watch",
+    "build": "turbo run build",
+    "test": "cross-env FORCE_COLOR=1 turbo run test",
+    "test:update": "cross-env FORCE_COLOR=1 turbo run test -- --updateSnapshot",
+    "test:watch": "turbo run test:watch",
+    "pkg:version": "node ./scripts/version.js",
+    "pkg:publish": "node ./scripts/publish.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.4.0",
+    "@tknf/eslint-config-typescript": "^1.0.8",
+    "@tknf/prettier-config": "^1.0.8",
+    "@types/jest": "^28.1.8",
+    "@types/node": "^18.7.15",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.23.0",
+    "fs-extra": "^10.0.1",
+    "jest": "^28.0.0",
+    "jest-junit": "^14.0.1",
+    "jsonfile": "^6.1.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.7.1",
+    "prompt-confirm": "^2.0.4",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.78.1",
+    "semver": "^7.3.7",
+    "ts-jest": "^28.0.8",
+    "tslib": "^2.4.0",
+    "turbo": "^1.4.5",
+    "typescript": "^4.8.2"
+  },
+  "prettier": "@tknf/prettier-config",
+  "eslintConfig": {
+    "extends": "@tknf/eslint-config-typescript",
+    "rules": {
+      "no-console": "off",
+      "no-plusplus": "off",
+      "no-undef": "off",
+      "@typescript-eslint/ban-ts-comment": "off"
+    }
+  }
+}

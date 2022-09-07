@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="picx" tests="4" failures="0" errors="0" time="3.743">
+  <testsuite name="tests\config-path\config-path.test.ts" errors="0" failures="0" skipped="0" timestamp="2022-09-07T01:29:14" time="2.672" tests="1">
+    <testcase classname="config-path" name="command with config path" time="0.155">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests\original-cli\original-cli.test.ts" errors="0" failures="0" skipped="0" timestamp="2022-09-07T01:29:14" time="3.138" tests="1">
+    <testcase classname="original-cli" name="should exec original esbuild cli" time="0.64">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests\autoload-config\autoload-config.test.ts" errors="0" failures="0" skipped="0" timestamp="2022-09-07T01:29:14" time="3.276" tests="2">
+    <testcase classname="autoload-config" name="should validate config successfully" time="0.154">
+    </testcase>
+    <testcase classname="autoload-config" name="should throw load config error" time="0.616">
+    </testcase>
+  </testsuite>
+</testsuites>

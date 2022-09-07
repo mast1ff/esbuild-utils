@@ -1,0 +1,53 @@
+{
+  "name": "@esbuild-utils/cli",
+  "version": "0.1.0",
+  "description": "CLI extension to esbuild that supports loading of configuration files like webpack-cli",
+  "author": "mast1ff <https://github.com/mast1ff>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mast1ff/esbuild-utils",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/mast1ff/esbuild-utils/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "homepage": "https://github.com/mast1ff/esbuild-utils/tree/main/#readme",
+  "license": "MIT",
+  "types": "./dist/types.d.ts",
+  "bin": {
+    "esbuild": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "run-s build:*",
+    "build:rollup": "rollup -c",
+    "build:tsc": "tsc src/types.ts --declaration --emitDeclarationOnly --declarationDir dist",
+    "watch": "rollup -c -w",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "commander": "^9.4.0",
+    "debug": "^4.3.4",
+    "fs-extra": "^10.0.1",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/fs-extra": "^9.0.13",
+    "@types/readable-stream": "^2.3.14",
+    "esbuild": "^0.15.7",
+    "execa": "^5.0.0",
+    "internal-ip": "^6.2.0",
+    "readable-stream": "^3.6.0",
+    "strip-ansi": "^6.0.1"
+  }
+}

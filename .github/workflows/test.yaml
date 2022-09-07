@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    paths:
+      - "**.js"
+      - "**.ts"
+      - "package.json"
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "**.js"
+      - "**.ts"
+      - "package.json"
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+      - run: |
+          pnpm install
+          pnpm build
+          pnpm test
