@@ -26,7 +26,7 @@ async function run() {
   const prereleasetag = prerelease ? prerelease[0] : undefined;
   const tag = prereleasetag ? (prereleasetag.includes("canary") ? "canary" : prerelease) : "latest";
 
-  for (const name of ["picx", "express"]) {
+  for (const name of ["cli"]) {
     publish(path.join(packageDirectory, name), tag);
   }
 }
