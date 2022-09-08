@@ -12,8 +12,7 @@
     "watch": "turbo run watch",
     "build": "turbo run build",
     "test": "cross-env FORCE_COLOR=1 turbo run test",
-    "test:update": "cross-env FORCE_COLOR=1 turbo run test -- --updateSnapshot",
-    "test:watch": "turbo run test:watch",
+    "test:watch": "cross-env FORCE_COLOR=1 turbo run test:watch",
     "pkg:version": "node ./scripts/version.js",
     "pkg:publish": "node ./scripts/publish.js"
   },

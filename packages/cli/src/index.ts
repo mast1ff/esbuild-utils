@@ -2,9 +2,11 @@ import * as path from "node:path";
 import { performance } from "node:perf_hooks";
 import * as fs from "fs-extra";
 import colors from "picocolors";
-import { build, BuildFailure } from "esbuild";
-import { loadConfigFromFile, LoadConfigResult } from "./config";
-import "./types";
+import * as esbuild from "esbuild";
+import cac from "cac";
+import { loadConfigFromFile } from "./config";
+import { init } from "./commands/init";
+import { build } from "./commands/build";
 
 function isInstalled(packageName: string): boolean {
   if (process.versions.pnp) {
@@ -26,11 +28,65 @@ function isInstalled(packageName: string): boolean {
   return false;
 }
 
-function runCli(cli: CLIOption) {
-  const packagePath = require.resolve(`${cli.package}/package.json`);
-  const pkg = require(packagePath);
-  require(path.resolve(path.dirname(packagePath), pkg.bin[cli.binName]));
-}
+const commands = cac("esbuild-cli");
+
+commands
+  .command("init", `Create a config file for esbuild.`)
+  .option(`--typescript`, `Create a TypeScript config file.`)
+  .option(`-i, --input <file>`, `Add entrypoints to the config file.`)
+  .option(`-o, --output <file>`, `Add output file option to the config file.`)
+  .action(async (options) => {
+    let ts = false;
+    let filename = `esbuild.config.js`;
+    const input: string | undefined = options.input;
+    const output: string | undefined = options.output;
+    if (options.typescript) {
+      ts = true;
+      filename = `esbuild.config.ts`;
+    }
+
+    const file = path.resolve(process.cwd(), filename);
+
+    await init(file, { ts, input, output })
+      .then(() => {
+        console.log(colors.green(`[esbuild] Initialized in ${path.dirname(file)}`));
+      })
+      .catch((err) => {
+        console.error(colors.red(`[esbuild] Initialization failure`));
+        console.error(colors.red(`  ${err?.message}`));
+        console.error(String(err.stack));
+      });
+  });
+
+commands
+  .command("build", `Perform build with options in config file.`)
+  .option(`-c, --config <file>`, `Specifies the config file to be read.`)
+  .action(async (options) => {
+    const configFile = options.config || undefined;
+    const loadResult = await loadConfigFromFile(configFile);
+    if (!loadResult) {
+      throw new Error(`Could not load config file.`);
+    }
+
+    for (const config of loadResult.config) {
+      const start = performance.now();
+      await build(config)
+        .then((build) => {
+          console.log(colors.green(`[esbuild] Built in ${(performance.now() - start).toFixed(2)}ms`));
+          build.outputFiles?.forEach((file) => {
+            console.log(`    ${file.path}  ${file.contents.byteLength}b`);
+          });
+        })
+        .catch((err: Error | esbuild.BuildFailure) => {
+          console.error(colors.red(`[esbuild] Build failure`));
+          console.error(colors.red(`  ${err.message}`));
+          console.error(String(err.stack));
+        });
+    }
+  });
+
+commands.option(`-v, --version`, `Display version number`);
+commands.help();
 
 interface CLIOption {
   name: string;
@@ -49,18 +105,18 @@ const cli: CLIOption = {
 };
 
 async function run() {
+  let packagemanager;
+  if (fs.existsSync(path.resolve(process.cwd(), "yarn.lock"))) {
+    packagemanager = `yarn`;
+  } else if (fs.existsSync(path.resolve(process.cwd(), "pnpm-lock.yaml"))) {
+    packagemanager = `pnpm`;
+  } else {
+    packagemanager = `npm`;
+  }
+
   if (!cli.installed) {
     const notify = `CLI for esbuild must be installed.\n ${cli.name} (${cli.url})\n`;
     console.error(notify);
-
-    let packagemanager;
-    if (fs.existsSync(path.resolve(process.cwd(), "yarn.lock"))) {
-      packagemanager = `yarn`;
-    } else if (fs.existsSync(path.resolve(process.cwd(), "pnpm-lock.yaml"))) {
-      packagemanager = `pnpm`;
-    } else {
-      packagemanager = `npm`;
-    }
 
     const installOptions = [packagemanager === "yarn" ? "add" : "install", "-D"];
 
@@ -69,73 +125,14 @@ async function run() {
         cli.package
       }`
     );
-  } else {
-    const args = process.argv.slice(2);
+    process.exit(1);
+  }
 
-    if (args[0] === "--help") {
-      console.log(`*** @esbuild-utils/cli ***\n`);
-      console.log(`Usage:`);
-      console.log(`  esbuild [options]`);
-      console.log(`\n`);
-      console.log(`Options:`);
-      console.log(`  --config=...        The config file`);
-    }
-
-    const arg = args[0];
-    const specifyConfig = typeof arg === "string" && /^--config=(.*)/.test(arg);
-    if (typeof args[0] === "undefined" || specifyConfig) {
-      let configResult: LoadConfigResult | null;
-      if (specifyConfig) {
-        const configFile = arg.split("=")[1];
-        if (typeof configFile === "undefined") {
-          throw new Error(`config file path is required`);
-        }
-        configResult = await loadConfigFromFile(configFile);
-      } else {
-        configResult = await loadConfigFromFile();
-      }
-
-      if (configResult) {
-        const { config: configs } = configResult;
-
-        for (const _config of configs) {
-          const start = performance.now();
-          const { onBuildFailure, onBuildSuccess, ...config } = _config;
-          await build({
-            ...config,
-            watch: config.watch
-              ? {
-                  onRebuild(err, res) {
-                    if (err) {
-                      console.error(colors.red(`[esbuild] Build failure\n`));
-                      console.error(String(err.stack));
-                      onBuildFailure?.(err);
-                    }
-                    if (res) {
-                      console.log(colors.green(`[esbuild] ReBuilt`));
-                      onBuildSuccess?.(res);
-                    }
-                    if (typeof config.watch === "object") {
-                      config.watch.onRebuild?.(err, res);
-                    }
-                  }
-                }
-              : false
-          })
-            .then((build) => {
-              console.log(colors.green(`[esbuild] Built in ${(performance.now() - start).toFixed(2)}ms`));
-              onBuildSuccess?.(build);
-            })
-            .catch((err: Error | BuildFailure) => {
-              console.error(colors.red(`[esbuild] Build failure\n`));
-              console.error(String(err.stack));
-              onBuildFailure?.(err);
-            });
-        }
-        return;
-      }
-    }
-    runCli(cli);
+  const parsed = commands.parse();
+  if (parsed.options.version) {
+    const pkg = require("../package.json");
+    const version = pkg.version;
+    console.log(version);
   }
 }
 

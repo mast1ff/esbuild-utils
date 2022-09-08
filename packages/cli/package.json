@@ -19,7 +19,7 @@
   "license": "MIT",
   "types": "./dist/types.d.ts",
   "bin": {
-    "esbuild": "./dist/index.js"
+    "esbuild-cli": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -30,7 +30,8 @@
     "build:rollup": "rollup -c",
     "build:tsc": "tsc src/types.ts --declaration --emitDeclarationOnly --declarationDir dist",
     "watch": "rollup -c -w",
-    "test": "jest",
+    "test": "jest --updateSnapshot",
+    "test:watch": "jest --watchAll --updateSnapshot",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -44,7 +45,9 @@
     "@types/debug": "^4.1.7",
     "@types/fs-extra": "^9.0.13",
     "@types/readable-stream": "^2.3.14",
+    "@types/semver": "^7.3.12",
     "esbuild": "^0.15.7",
+    "esbuild-register": "^3.3.3",
     "execa": "^5.0.0",
     "internal-ip": "^6.2.0",
     "readable-stream": "^3.6.0",

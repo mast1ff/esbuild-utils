@@ -73,7 +73,7 @@ export function slash(p: string): string {
 
 const _require = createRequire(import.meta.url);
 
-// @ts-expect-error
+// @ts-ignore
 export const usingDynamicImport = typeof jest === "undefined";
 
 export const dynamicImport = usingDynamicImport ? new Function("file", "return import(file)") : _require;
