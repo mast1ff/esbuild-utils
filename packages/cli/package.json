@@ -17,6 +17,11 @@
   },
   "homepage": "https://github.com/mast1ff/esbuild-utils/tree/main/#readme",
   "license": "MIT",
+  "keywords": [
+    "esbuild",
+    "webpack",
+    "cli"
+  ],
   "types": "./dist/types.d.ts",
   "bin": {
     "esbuild-cli": "./dist/index.js"
