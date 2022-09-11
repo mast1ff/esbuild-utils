@@ -63,7 +63,7 @@ export async function loadConfigFromFile(
     const config = await loadConfigFromBundledFile(resolvedPath, bundled.code, isESM);
     debug(`bundled config file loaded in ${getTime()}`);
 
-    if (!isObject(config) || !Array.isArray(config)) {
+    if (!(isObject(config) || Array.isArray(config))) {
       throw new Error(`config must export an object.`);
     }
 
